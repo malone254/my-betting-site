@@ -1,144 +1,145 @@
-// script.js - Professional Betting Site Logic
-
-let selections = [];
-
-// 1. Select DOM Elements
-const oddsButtons = document.querySelectorAll('.odd-box');
-const betslipContent = document.querySelector('.slip-body');
-const betslipCount = document.querySelector('.count');
-const placeBetBtn = document.querySelector('.place-btn');
-
 /**
- * Handle selection of odds
+ * BETPRO - FULL SYSTEM SCRIPT
+ * Handles: Live Odds, Multi-slip Logic, Payouts, and API submission
  */
-function handleSelection(e) {
-    const btn = e.currentTarget;
-    const matchCard = btn.closest('.match-card');
-    const matchName = matchCard.querySelector('.match-teams').innerText;
-    const market = btn.querySelector('.odd-label').innerText;
-    const price = parseFloat(btn.querySelector('.odd-val').innerText);
 
-    const betId = `${matchName}-${market}`;
+// 1. STATE MANAGEMENT
+let state = {
+    selections: JSON.parse(localStorage.getItem('my_betslip')) || [],
+    liveGames: [],
+    minStake: 50,
+    isProcessing: false
+};
 
-    // Check if selection already exists
-    const existingIndex = selections.findIndex(s => s.id === betId);
+// 2. INITIALIZE SOCKET (Real-time updates)
+const socket = io(); // Connects to the server.js we built
+
+socket.on('odds-update', (newOdds) => {
+    state.liveGames = newOdds;
+    updateOddsUI(); // Updates numbers on screen without refresh
+});
+
+// 3. CORE LOGIC: Handle Selection
+function toggleSelection(event) {
+    if (state.isProcessing) return;
+
+    const btn = event.currentTarget;
+    const matchData = {
+        id: btn.dataset.matchId,      // Unique match ID from API
+        teams: btn.dataset.matchTeams, // e.g. "Arsenal vs Chelsea"
+        market: btn.dataset.market,   // e.g. "Home Win"
+        price: parseFloat(btn.dataset.price)
+    };
+
+    const betId = `${matchData.id}-${matchData.market}`;
+    const existingIndex = state.selections.findIndex(s => s.id === betId);
 
     if (existingIndex > -1) {
-        // Remove selection
-        selections.splice(existingIndex, 1);
-        btn.classList.remove('selected');
-        btn.style.background = "#333";
-        btn.style.color = "white";
+        state.selections.splice(existingIndex, 1);
     } else {
-        // Add new selection
-        selections.push({
-            id: betId,
-            match: matchName,
-            market: market,
-            price: price
-        });
-        btn.classList.add('selected');
-        btn.style.background = "var(--primary)";
-        btn.style.color = "#000";
+        // Validation: Prevent multiple selections from the same match
+        state.selections = state.selections.filter(s => s.id.split('-')[0] !== matchData.id);
+        state.selections.push({ ...matchData, id: betId });
     }
 
-    renderBetslip();
+    saveAndRender();
 }
 
-/**
- * Render the updated UI for the betslip
- */
-function renderBetslip() {
-    // Update count indicator
-    betslipCount.innerText = selections.length;
+// 4. CALCULATION & RENDERING
+function saveAndRender() {
+    localStorage.setItem('my_betslip', JSON.stringify(state.selections));
+    
+    const slipBody = document.querySelector('.slip-body');
+    const badge = document.querySelector('.count');
+    const placeBtn = document.querySelector('.place-btn');
 
-    if (selections.length === 0) {
-        betslipContent.innerHTML = `
-            <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 10px;"></i>
-            <p>Click on odds to add bets to your slip.</p>`;
-        
-        placeBetBtn.disabled = true;
-        placeBetBtn.style.background = "#444";
-        placeBetBtn.style.cursor = "not-allowed";
-        placeBetBtn.innerText = "PLACE BET";
+    badge.innerText = state.selections.length;
+
+    if (state.selections.length === 0) {
+        slipBody.innerHTML = `<div class="empty-state">Select odds to start betting</div>`;
+        placeBtn.disabled = true;
         return;
     }
 
-    // Generate selection HTML
-    let selectionsHtml = selections.map(item => `
-        <div class="selection-item" style="text-align: left; background: #252525; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid var(--primary);">
-            <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">${item.match}</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-                <span style="font-weight: bold; font-size: 14px;">Result: ${item.market}</span>
-                <span style="font-weight: 800; color: var(--primary);">@ ${item.price.toFixed(2)}</span>
-            </div>
-        </div>
-    `).join('');
+    // Calculate Acca (Accumulator) Odds
+    const totalOdds = state.selections.reduce((acc, curr) => acc * curr.price, 1).toFixed(2);
 
-    // Calculate Total Odds
-    const totalOdds = selections.reduce((acc, curr) => acc * curr.price, 1).toFixed(2);
-
-    // Update internal content
-    betslipContent.innerHTML = `
-        <div class="selections-list" style="max-height: 300px; overflow-y: auto; padding: 10px;">
-            ${selectionsHtml}
+    slipBody.innerHTML = `
+        <div class="selection-list">
+            ${state.selections.map(item => `
+                <div class="item animate-in">
+                    <div class="details">
+                        <span class="teams">${item.teams}</span>
+                        <span class="market">${item.market}</span>
+                    </div>
+                    <span class="odds">@ ${item.price.toFixed(2)}</span>
+                </div>
+            `).join('')}
         </div>
-        <div class="slip-summary" style="padding: 15px; background: #1a1a1a; margin-top: 10px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <span>Total Odds:</span>
-                <span style="font-weight: bold; color: var(--primary);">${totalOdds}</span>
-            </div>
-            <input type="number" id="stake-input" placeholder="Enter Stake (KES)" 
-                style="width: 100%; padding: 12px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; outline: none; font-weight: bold;">
-            <div id="payout-calc" style="margin-top: 10px; font-size: 13px; color: var(--text-dim);">
-                Est. Payout: <span style="color: white; font-weight: bold;">KES 0.00</span>
-            </div>
+        <div class="slip-footer">
+            <div class="odds-row">Total Odds: <strong>${totalOdds}</strong></div>
+            <input type="number" id="stake" placeholder="Stake (KES)" oninput="calcPayout(${totalOdds})">
+            <div id="est-payout">Potential Win: <span>KES 0.00</span></div>
         </div>
     `;
 
-    // Enable Place Bet button
-    placeBetBtn.disabled = false;
-    placeBetBtn.style.background = "var(--primary)";
-    placeBetBtn.style.color = "#000";
-    placeBetBtn.style.cursor = "pointer";
-    placeBetBtn.innerText = `PLACE BET (${selections.length})`;
-
-    // Add Stake Listener for Real-time payout calc
-    const stakeInput = document.getElementById('stake-input');
-    stakeInput.addEventListener('input', (e) => {
-        const stake = parseFloat(e.target.value) || 0;
-        const payout = (stake * totalOdds).toLocaleString();
-        document.querySelector('#payout-calc span').innerText = `KES ${payout}`;
-    });
+    placeBtn.disabled = false;
+    placeBtn.innerText = `PLACE BET (${state.selections.length})`;
 }
 
-/**
- * Submit bet simulation
- */
-placeBetBtn.addEventListener('click', () => {
-    const stake = document.getElementById('stake-input').value;
-    
-    if (!stake || stake < 50) {
-        alert("Minimum stake is KES 50");
+function calcPayout(odds) {
+    const stake = parseFloat(document.getElementById('stake').value) || 0;
+    const payout = (stake * odds).toLocaleString();
+    document.querySelector('#est-payout span').innerText = `KES ${payout}`;
+}
+
+// 5. SUBMIT TO BACKEND (The "Place Bet" Action)
+async function submitBet() {
+    const stake = parseFloat(document.getElementById('stake').value);
+
+    if (!stake || stake < state.minStake) {
+        alert(`Minimum stake is KES ${state.minStake}`);
         return;
     }
 
-    // Simulation of API Call
-    placeBetBtn.innerText = "PROCESSING...";
-    placeBetBtn.disabled = true;
+    state.isProcessing = true;
+    const btn = document.querySelector('.place-btn');
+    btn.innerText = "VERIFYING...";
 
-    setTimeout(() => {
-        alert(`Success! Your bet on ${selections.length} events has been placed.\nStake: KES ${stake}`);
-        
-        // Reset slip
-        selections = [];
-        document.querySelectorAll('.odd-box').forEach(b => {
-            b.style.background = "#333";
-            b.style.color = "white";
+    try {
+        const response = await fetch('/api/place-bet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                selections: state.selections,
+                stake: stake,
+                totalOdds: state.selections.reduce((acc, curr) => acc * curr.price, 1)
+            })
         });
-        renderBetslip();
-    }, 1500);
-});
 
-// Initial Event Listeners
-oddsButtons.forEach(btn => btn.addEventListener('click', handleSelection));
+        const result = await response.json();
+
+        if (result.success) {
+            alert("Ticket Placed! Reference: " + result.betId);
+            state.selections = [];
+            saveAndRender();
+        }
+    } catch (err) {
+        alert("Connection Error. Check your internet.");
+    } finally {
+        state.isProcessing = false;
+    }
+}
+
+// 6. EVENT LISTENERS
+document.addEventListener('DOMContentLoaded', () => {
+    // Delegate clicks to match-cards (works even for dynamically loaded games)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.odd-box')) {
+            toggleSelection({ currentTarget: e.target.closest('.odd-box') });
+        }
+    });
+
+    document.querySelector('.place-btn').addEventListener('click', submitBet);
+    saveAndRender();
+});
