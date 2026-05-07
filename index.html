@@ -3,95 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MALONE BETTING SITE | Elite Sportsbook</title>
+    <title>MALONE BETTING SITE | Elite</title>
     <script src="https://tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cloudflare.com">
+    
     <style>
         :root {
             --malone-navy: #161829;
             --malone-yellow: #DCB01B;
             --malone-bg: #f4f4f4;
+            --malone-border: #e0e0e0;
         }
-        body { background-color: var(--malone-bg); font-family: 'Open Sans', sans-serif; }
-        .odd-btn { background: #fff; border: 1px solid #ddd; min-height: 48px; transition: all 0.1s; }
-        .odd-btn:hover { border-color: var(--malone-yellow); background: #f9f9f9; }
-        .odd-btn.selected { background: var(--malone-yellow) !important; color: #000; font-weight: 800; border-color: var(--malone-yellow); }
+
+        body { 
+            background-color: var(--malone-bg); 
+            font-family: 'Open Sans', sans-serif; 
+            margin-bottom: 70px; /* Space for mobile nav */
+        }
+
+        /* Page Transitions */
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Betika Style Buttons */
+        .odd-btn {
+            background: #fff;
+            border: 1px solid #ddd;
+            min-height: 44px;
+            transition: all 0.1s;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .odd-btn.selected {
+            background: var(--malone-yellow) !important;
+            border-color: var(--malone-yellow);
+            color: #000;
+        }
+
+        /* Bottom Nav Styling */
+        .bottom-nav {
+            background: var(--malone-navy);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: grid;
+            grid-template-cols: repeat(5, 1fr);
+            padding: 8px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .nav-item.active { color: var(--malone-yellow); }
+        .nav-item i { font-size: 18px; margin-bottom: 4px; }
+
+        /* Custom Badge */
+        .badge {
+            background: var(--malone-yellow);
+            color: #000;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 900;
+        }
     </style>
 </head>
-<body class="text-sm">
-    <header class="bg-[#161829] text-white sticky top-0 z-50 shadow-lg">
-        <div class="max-w-[1300px] mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-8">
-                <h1 class="text-2xl font-black italic tracking-tighter text-[#DCB01B]">MALONE</h1>
-                <nav class="hidden lg:flex gap-6 font-bold text-[11px] uppercase">
-                    <a href="#" class="text-[#DCB01B] border-b-2 border-[#DCB01B] pb-1">Sports</a>
-                    <a href="#" class="hover:text-[#DCB01B]">Live Now</a>
-                    <a href="#" class="hover:text-[#DCB01B]">Jackpots</a>
-                </nav>
-            </div>
-            <div class="flex gap-3">
-                <button class="px-4 py-1.5 border border-[#DCB01B] text-[#DCB01B] rounded font-bold text-xs">LOGIN</button>
-                <button class="px-4 py-1.5 bg-[#DCB01B] text-black rounded font-bold text-xs">JOIN MALONE</button>
-            </div>
+<body>
+
+    <!-- Header -->
+    <header class="bg-[#161829] text-white p-3 sticky top-0 z-50 flex justify-between items-center">
+        <h1 class="text-xl font-black italic text-[#DCB01B]">MALONE</h1>
+        <div class="flex gap-2">
+            <button class="text-[10px] font-bold border border-[#DCB01B] text-[#DCB01B] px-3 py-1 rounded">LOGIN</button>
+            <button class="text-[10px] font-bold bg-[#DCB01B] text-black px-3 py-1 rounded">JOIN</button>
         </div>
     </header>
 
-    <main class="max-w-[1300px] mx-auto grid grid-cols-12 gap-4 p-4">
-        <!-- Sidebar -->
-        <aside class="col-span-2 hidden lg:block">
-            <div class="bg-[#161829] text-white rounded-lg p-2">
-                <div class="p-3 bg-white/10 font-black text-[10px] uppercase border-b border-white/5">Markets</div>
-                <div class="p-3 hover:text-[#DCB01B] cursor-pointer border-l-4 border-[#DCB01B] bg-white/5">⚽ Soccer</div>
-                <div class="p-3 hover:text-[#DCB01B] cursor-pointer">🏀 Basketball</div>
+    <!-- Main Container -->
+    <main class="max-w-[1200px] mx-auto p-2">
+        
+        <!-- PAGE 1: HOME (Active by default) -->
+        <div id="home" class="page-content active">
+            <div class="bg-[#2a3780] text-white p-4 rounded-lg mb-4 flex justify-between items-center shadow-lg">
+                <div>
+                    <span class="text-[10px] font-bold bg-red-600 px-2 py-0.5 rounded">HOT</span>
+                    <h2 class="text-lg font-black italic">DAILY JACKPOT</h2>
+                    <p class="text-xs text-blue-200">Win KES 15,000,000</p>
+                </div>
+                <button onclick="navigateTo('jackpot')" class="bg-[#DCB01B] text-black font-black text-xs px-4 py-2 rounded">PLAY</button>
             </div>
-        </aside>
 
-        <!-- Match Feed -->
-        <section class="col-span-12 lg:col-span-7 space-y-2">
-            <div class="bg-white border-b p-4 flex flex-col md:flex-row items-center gap-4 hover:shadow-md transition">
-                <div class="flex-grow">
-                    <span class="text-[10px] text-blue-700 font-bold uppercase">UCL • ID: 7701</span>
-                    <h2 class="font-bold text-base">Real Madrid vs Man City</h2>
+            <h3 class="font-black text-xs text-gray-500 uppercase mb-2 ml-1">Top Matches</h3>
+            <!-- Match Card -->
+            <div class="bg-white rounded border mb-2 p-3 shadow-sm">
+                <div class="flex justify-between text-[10px] mb-2">
+                    <span class="font-bold text-blue-800 uppercase">Premier League</span>
+                    <span class="text-gray-400">18:00 • ID: 4410</span>
                 </div>
-                <div class="flex gap-1">
-                    <button class="odd-btn w-20 flex flex-col items-center justify-center rounded shadow-sm" onclick="handleSelection('7701', 'RM vs MC', '1', 2.10)">
-                        <span class="text-[9px] text-gray-400 font-bold">1</span><span class="font-black">2.10</span>
-                    </button>
-                    <button class="odd-btn w-20 flex flex-col items-center justify-center rounded shadow-sm" onclick="handleSelection('7701', 'RM vs MC', 'X', 3.40)">
-                        <span class="text-[9px] text-gray-400 font-bold">X</span><span class="font-black">3.40</span>
-                    </button>
-                    <button class="odd-btn w-20 flex flex-col items-center justify-center rounded shadow-sm" onclick="handleSelection('7701', 'RM vs MC', '2', 3.15)">
-                        <span class="text-[9px] text-gray-400 font-bold">2</span><span class="font-black">3.15</span>
-                    </button>
+                <div class="font-bold text-sm mb-3">Arsenal vs Man City</div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button class="odd-btn rounded" onclick="this.classList.toggle('selected')">1 <br> 2.45</button>
+                    <button class="odd-btn rounded" onclick="this.classList.toggle('selected')">X <br> 3.50</button>
+                    <button class="odd-btn rounded" onclick="this.classList.toggle('selected')">2 <br> 2.90</button>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Bet Slip -->
-        <aside class="col-span-12 lg:col-span-3">
-            <div class="bg-white rounded-lg border sticky top-[80px] shadow-xl">
-                <div class="p-4 bg-[#161829] text-white font-black flex justify-between items-center rounded-t-lg">
-                    <span>BET SLIP</span>
-                    <span class="bg-[#DCB01B] text-black text-[10px] px-2 py-0.5 rounded-full count">0</span>
-                </div>
-                <div class="p-6 min-h-[120px] text-center" id="slip-items">
-                    <p class="text-[11px] text-gray-400 italic">Select odds to start your Malone ticket.</p>
-                </div>
-                <div class="p-4 border-t bg-gray-50 space-y-3">
-                    <div class="flex justify-between text-xs font-bold">
-                        <span>Total Odds</span><span class="text-blue-700 font-black" id="total-odds">0.00</span>
-                    </div>
-                    <button disabled class="w-full py-4 bg-gray-300 text-gray-500 rounded-xl font-black uppercase text-xs place-btn shadow-md">PLACE BET</button>
+        <!-- PAGE 2: LIVE -->
+        <div id="live" class="page-content">
+            <div class="bg-white p-4 rounded border text-center mb-4">
+                <i class="fa-solid fa-satellite-dish text-red-600 text-3xl mb-2"></i>
+                <h2 class="font-black">LIVE BETTING</h2>
+                <p class="text-xs text-gray-500">Matches currently in-play</p>
+            </div>
+            <div class="bg-white p-6 rounded border text-center text-gray-400 italic text-xs">
+                Searching for live events...
+            </div>
+        </div>
+
+        <!-- PAGE 3: JACKPOT -->
+        <div id="jackpot" class="page-content">
+            <div class="bg-[#161829] text-white p-8 rounded-xl text-center shadow-2xl">
+                <h1 class="text-3xl font-black text-[#DCB01B] mb-2 italic">KES 15,000,000</h1>
+                <p class="uppercase font-bold tracking-widest text-xs opacity-70">Daily Jackpot Prize</p>
+                <div class="mt-6 border-t border-white/10 pt-6">
+                    <p class="text-sm">Pick 13 games correctly to win.</p>
+                    <button class="mt-4 w-full bg-[#DCB01B] text-black font-black py-3 rounded-lg">GENERATE LUCKY PICK</button>
                 </div>
             </div>
-        </aside>
+        </div>
+
+        <!-- PAGE 4: MY BETS -->
+        <div id="mybets" class="page-content">
+            <h2 class="font-black text-lg mb-4">My Tickets</h2>
+            <div class="bg-white p-10 rounded border text-center text-gray-400">
+                <i class="fa-solid fa-folder-open text-4xl mb-4 opacity-20"></i>
+                <p class="text-sm">You have no active bets.</p>
+                <button onclick="navigateTo('home')" class="mt-4 text-[#2a3780] font-bold text-xs underline">Start Betting</button>
+            </div>
+        </div>
+
     </main>
 
-    <footer class="bg-white border-t mt-20 py-10">
-        <div class="max-w-[1300px] mx-auto px-4 text-center">
-            <p class="text-[10px] text-gray-500">© 2026 MALONE BETTING SITE. Licensed by BCLB. 18+ Only. [BCLB License Required](https://kfcb.go.ke/sites/default/files/2025-05/BCLB%20Press%20Release%20-%2030th%20May%202025.pdf).</p>
-        </div>
-    </footer>
-    <script src="script.js"></script>
+    <!-- Bottom Navigation (Betika Style) -->
+    <nav class="bottom-nav">
+        <a href="javascript:void(0)" onclick="navigateTo('home', this)" class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navigateTo('live', this)" class="nav-item">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Live</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navigateTo('jackpot', this)" class="nav-item">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Jackpot</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navigateTo('mybets', this)" class="nav-item">
+            <i class="fa-solid fa-receipt"></i>
+            <span>My Bets</span>
+        </a>
+        <a href="javascript:void(0)" onclick="navigateTo('profile', this)" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        // Page Routing Logic
+        function navigateTo(pageId, element) {
+            // 1. Hide all pages
+            const pages = document.querySelectorAll('.page-content');
+            pages.forEach(page => page.classList.remove('active'));
+
+            // 2. Show selected page
+            const activePage = document.getElementById(pageId);
+            if(activePage) {
+                activePage.classList.add('active');
+            } else {
+                alert(pageId.toUpperCase() + " page coming soon!");
+            }
+
+            // 3. Update Bottom Nav UI
+            if(element) {
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+            }
+
+            // 4. Scroll to top
+            window.scrollTo(0,0);
+        }
+    </script>
 </body>
-</html>
+    </html>
+    
