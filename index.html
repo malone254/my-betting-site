@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EliteBet | Professional Sportsbook</title>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        :root {
+            --primary: #00e676;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+            --text-dim: #b3b3b3;
+            --accent: #2979ff;
+            --header-h: 70px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
+
+        /* Header */
+        header {
+            height: var(--header-h);
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #333;
+        }
+
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+
+        nav a { color: var(--text-main); text-decoration: none; margin: 0 15px; font-weight: 600; font-size: 14px; transition: 0.3s; }
+        nav a:hover { color: var(--primary); }
+
+        .auth-btns button { padding: 10px 20px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
+        .login-btn { background: transparent; color: white; }
+        .join-btn { background: var(--primary); color: #000; }
+
+        /* Layout */
+        .wrapper { display: grid; grid-template-columns: 240px 1fr 320px; gap: 20px; padding: 90px 20px 20px; max-width: 1600px; margin: 0 auto; }
+
+        /* Sidebar */
+        .sidebar { background: var(--bg-card); border-radius: 8px; padding: 15px; height: fit-content; }
+        .sidebar h4 { color: var(--text-dim); font-size: 12px; text-transform: uppercase; margin-bottom: 15px; }
+        .sport-item { display: flex; align-items: center; padding: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .sport-item:hover { background: #333; }
+        .sport-item i { margin-right: 12px; width: 20px; color: var(--primary); }
+
+        /* Main Feed */
+        .main-feed h2 { margin-bottom: 20px; font-size: 22px; }
+        .match-card { background: var(--bg-card); border-radius: 8px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .match-info { flex: 1; }
+        .match-teams { font-weight: 600; margin-bottom: 5px; }
+        .match-meta { font-size: 12px; color: var(--text-dim); }
+        
+        .odds-grid { display: grid; grid-template-columns: repeat(3, 80px); gap: 8px; }
+        .odd-box { background: #333; border: none; border-radius: 4px; color: white; padding: 10px 5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .odd-box:hover { background: var(--primary); color: #000; }
+        .odd-val { font-weight: bold; font-size: 14px; }
+        .odd-label { font-size: 10px; opacity: 0.7; }
+
+        /* Betslip */
+        .betslip { background: var(--bg-card); border-radius: 8px; height: fit-content; position: sticky; top: 90px; }
+        .slip-head { background: #252525; padding: 15px; border-radius: 8px 8px 0 0; font-weight: bold; display: flex; justify-content: space-between; }
+        .slip-body { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 14px; }
+        .slip-footer { padding: 15px; border-top: 1px solid #333; }
+        .place-btn { width: 100%; padding: 15px; background: #444; border: none; border-radius: 6px; color: #888; font-weight: bold; cursor: not-allowed; }
+
+        @media (max-width: 1100px) { .wrapper { grid-template-columns: 200px 1fr; } .betslip { display: none; } }
+        @media (max-width: 768px) { .wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">ELITEBET</div>
+        <nav>
+            <a href="#"><i class="fas fa-bolt"></i> Live</a>
+            <a href="#"><i class="fas fa-trophy"></i> Sports</a>
+            <a href="#"><i class="fas fa-dice"></i> Casino</a>
+            <a href="#"><i class="fas fa-gift"></i> Promos</a>
+        </nav>
+        <div class="auth-btns">
+            <button class="login-btn">Login</button>
+            <button class="join-btn">Register</button>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <h4>Top Sports</h4>
+            <div class="sport-item"><i class="fas fa-futbol"></i> Football</div>
+            <div class="sport-item"><i class="fas fa-basketball-ball"></i> Basketball</div>
+            <div class="sport-item"><i class="fas fa-table-tennis"></i> Tennis</div>
+            <div class="sport-item"><i class="fas fa-horse"></i> Horse Racing</div>
+            <div class="sport-item"><i class="fas fa-gamepad"></i> eSports</div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-feed">
+            <h2>Live Highlights</h2>
+            
+            <!-- Match Item -->
+            <div class="match-card">
+                <div class="match-info">
+                    <div class="match-teams">Arsenal vs Manchester City</div>
+                    <div class="match-meta">Live • 64' • Premier League</div>
+                </div>
+                <div class="odds-grid">
+                    <button class="odd-box"><span class="odd-label">1</span><span class="odd-val">2.45</span></button>
+                    <button class="odd-box"><span class="odd-label">X</span><span class="odd-val">3.10</span></button>
+                    <button class="odd-box"><span class="odd-label">2</span><span class="odd-val">2.80</span></button>
+                </div>
+            </div>
+
+            <div class="match-card">
+                <div class="match-info">
+                    <div class="match-teams">Real Madrid vs Barcelona</div>
+                    <div class="match-meta">Today 22:00 • La Liga</div>
+                </div>
+                <div class="odds-grid">
+                    <button class="odd-box"><span class="odd-label">1</span><span class="odd-val">1.95</span></button>
+                    <button class="odd-box"><span class="odd-label">X</span><span class="odd-val">3.50</span></button>
+                    <button class="odd-box"><span class="odd-label">2</span><span class="odd-val">3.90</span></button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Betslip -->
+        <aside class="betslip">
+            <div class="slip-head">
+                <span>BET SLIP</span>
+                <span style="color: var(--primary)">0</span>
+            </div>
+            <div class="slip-body">
+                <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 10px;"></i>
+                <p>Click on odds to add bets to your slip.</p>
+            </div>
+            <div class="slip-footer">
+                <button class="place-btn">PLACE BET</button>
+            </div>
+        </aside>
+    </div>
+
+</body>
+</html>
