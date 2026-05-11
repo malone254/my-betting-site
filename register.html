@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
+
+body{
+background:#081120;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:#111c31;
+padding:40px;
+border-radius:20px;
+width:350px;
+}
+
+h2{color:#00ff9d;margin-bottom:20px;}
+
+input{
+width:100%;
+padding:14px;
+margin:8px 0;
+border:none;
+border-radius:10px;
+background:#1a2742;
+color:white;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+background:#00ff9d;
+color:#081120;
+font-weight:700;
+border-radius:10px;
+cursor:pointer;
+margin-top:10px;
+}
+
+p{
+text-align:center;
+margin-top:15px;
+color:#cfd6e4;
+}
+
+a{color:#00ff9d;text-decoration:none;}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>Create Account</h2>
+
+<input type="text" placeholder="Username">
+<input type="email" placeholder="Email">
+<input type="password" placeholder="Password">
+<input type="password" placeholder="Confirm Password">
+
+<button>Register</button>
+
+<p>Already have account? <a href="/login">Login</a></p>
+</div>
+
+</body>
+</html>
