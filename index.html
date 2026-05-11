@@ -4,12 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Malone Bet</title>
+<title>MaloneBet - Home</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
@@ -23,17 +20,15 @@ font-family:'Poppins',sans-serif;
 body{
 background:#081120;
 color:white;
-overflow-x:hidden;
 }
 
 /* NAVBAR */
 
 nav{
-width:100%;
-padding:15px 5%;
 display:flex;
 justify-content:space-between;
 align-items:center;
+padding:18px 5%;
 background:#0d1728;
 position:sticky;
 top:0;
@@ -49,14 +44,13 @@ color:#00ff9d;
 
 .nav-links{
 display:flex;
-gap:25px;
-align-items:center;
+gap:18px;
 }
 
 .nav-links a{
-text-decoration:none;
 color:white;
-font-size:15px;
+text-decoration:none;
+font-size:14px;
 transition:0.3s;
 }
 
@@ -64,40 +58,20 @@ transition:0.3s;
 color:#00ff9d;
 }
 
-.login-btn{
-padding:10px 20px;
-background:#00ff9d;
-border:none;
-border-radius:10px;
-font-weight:600;
-cursor:pointer;
-color:#081120;
-}
-
 /* HERO */
 
 .hero{
-width:100%;
-min-height:80vh;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:60px 5%;
+padding:80px 5%;
+text-align:center;
 background:
 linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
 url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=1600&auto=format&fit=crop');
 background-size:cover;
 background-position:center;
-text-align:center;
-}
-
-.hero-content{
-max-width:700px;
 }
 
 .hero h1{
 font-size:60px;
-margin-bottom:20px;
 line-height:1.1;
 }
 
@@ -106,83 +80,71 @@ color:#00ff9d;
 }
 
 .hero p{
+margin-top:20px;
 font-size:18px;
 color:#cfd6e4;
-margin-bottom:30px;
-line-height:1.7;
+max-width:700px;
+margin-left:auto;
+margin-right:auto;
 }
 
-.hero-buttons{
-display:flex;
-justify-content:center;
-gap:20px;
-flex-wrap:wrap;
-}
-
-.hero-buttons button{
+.hero button{
+margin-top:30px;
 padding:15px 30px;
 border:none;
-border-radius:12px;
+background:#00ff9d;
+color:#081120;
 font-size:16px;
-font-weight:600;
+font-weight:700;
+border-radius:12px;
 cursor:pointer;
 transition:0.3s;
 }
 
-.start-btn{
-background:#00ff9d;
-color:#081120;
+.hero button:hover{
+transform:translateY(-4px);
 }
 
-.demo-btn{
-background:transparent;
-border:2px solid #00ff9d !important;
-color:#00ff9d;
-}
-
-.hero-buttons button:hover{
-transform:translateY(-3px);
-}
-
-/* LIVE MATCHES */
+/* SECTION TITLE */
 
 .section-title{
 padding:40px 5% 20px;
-font-size:28px;
-font-weight:700;
+font-size:26px;
 }
+
+/* MATCHES */
 
 .matches{
-padding:0 5% 60px;
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-gap:25px;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+padding:0 5% 60px;
 }
 
-.match-card{
+.card{
 background:#111c31;
+padding:20px;
 border-radius:18px;
-padding:25px;
 transition:0.3s;
 border:1px solid rgba(255,255,255,0.05);
 }
 
-.match-card:hover{
+.card:hover{
 transform:translateY(-5px);
 border-color:#00ff9d;
 }
 
 .league{
-font-size:13px;
 color:#00ff9d;
-margin-bottom:15px;
+font-size:13px;
+margin-bottom:10px;
 }
 
 .teams{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
+margin-bottom:15px;
 }
 
 .team{
@@ -190,42 +152,29 @@ text-align:center;
 width:40%;
 }
 
-.team img{
-width:60px;
-height:60px;
-object-fit:contain;
-margin-bottom:10px;
-}
-
-.team h3{
-font-size:16px;
-}
-
 .vs{
-font-size:20px;
-font-weight:700;
 color:#00ff9d;
+font-weight:700;
 }
 
 .odds{
 display:flex;
 gap:10px;
-margin-top:20px;
 }
 
-.odd-btn{
+.odds button{
 flex:1;
 padding:12px;
 border:none;
 border-radius:10px;
 background:#1a2742;
 color:white;
-font-weight:600;
+font-weight:700;
 cursor:pointer;
 transition:0.3s;
 }
 
-.odd-btn:hover{
+.odds button:hover{
 background:#00ff9d;
 color:#081120;
 }
@@ -233,13 +182,13 @@ color:#081120;
 /* FEATURES */
 
 .features{
-padding:60px 5%;
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
+gap:20px;
+padding:20px 5% 60px;
 }
 
-.feature-card{
+.feature{
 background:#111c31;
 padding:30px;
 border-radius:18px;
@@ -247,29 +196,29 @@ text-align:center;
 transition:0.3s;
 }
 
-.feature-card:hover{
+.feature:hover{
 transform:translateY(-5px);
 }
 
-.feature-card h2{
-font-size:22px;
-margin:15px 0;
+.feature h2{
 color:#00ff9d;
+margin:15px 0;
 }
 
-.feature-card p{
+.feature p{
 color:#cfd6e4;
-line-height:1.7;
+font-size:14px;
+line-height:1.6;
 }
 
 /* FOOTER */
 
 footer{
-padding:30px 5%;
-background:#0d1728;
 text-align:center;
+padding:25px;
+background:#0d1728;
 color:#aab4c8;
-border-top:1px solid rgba(255,255,255,0.05);
+font-size:14px;
 }
 
 /* RESPONSIVE */
@@ -277,25 +226,19 @@ border-top:1px solid rgba(255,255,255,0.05);
 @media(max-width:768px){
 
 .hero h1{
-font-size:40px;
+font-size:38px;
 }
 
 .nav-links{
 display:none;
 }
 
-.hero p{
-font-size:15px;
-}
-
-.section-title{
-font-size:24px;
-}
-
 }
 
 </style>
+
 </head>
+
 <body>
 
 <!-- NAVBAR -->
@@ -305,12 +248,10 @@ font-size:24px;
 <div class="logo">MaloneBet</div>
 
 <div class="nav-links">
-<a href="#">Home</a>
-<a href="#">Live</a>
-<a href="#">Sports</a>
-<a href="#">Casino</a>
-<a href="#">Results</a>
-<button class="login-btn">Login</button>
+<a href="/">Home</a>
+<a href="/live">Live</a>
+<a href="/login">Login</a>
+<a href="/register">Register</a>
 </div>
 
 </nav>
@@ -319,111 +260,57 @@ font-size:24px;
 
 <section class="hero">
 
-<div class="hero-content">
-
 <h1>Bet Smarter With <span>MaloneBet</span></h1>
 
 <p>
-Experience live football betting, instant payouts,
-real-time odds and the best betting experience
-on mobile and desktop.
+Live football betting, real odds, instant withdrawals and
+a modern sportsbook experience built for mobile and desktop.
 </p>
 
-<div class="hero-buttons">
-<button class="start-btn">Get Started</button>
-<button class="demo-btn">Demo Site</button>
-</div>
-
-</div>
+<a href="/live">
+<button>Start Betting</button>
+</a>
 
 </section>
 
-<!-- LIVE MATCHES -->
+<!-- MATCHES -->
 
-<h1 class="section-title">🔥 Live Matches</h1>
+<h2 class="section-title">🔥 Featured Matches</h2>
 
 <section class="matches">
 
-<div class="match-card">
+<div class="card">
 
-<p class="league">Premier League</p>
+<div class="league">Premier League</div>
 
 <div class="teams">
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg">
-<h3>Arsenal</h3>
-</div>
-
+<div class="team">Arsenal</div>
 <div class="vs">VS</div>
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg">
-<h3>Chelsea</h3>
-</div>
-
+<div class="team">Chelsea</div>
 </div>
 
 <div class="odds">
-<button class="odd-btn">1.90</button>
-<button class="odd-btn">3.40</button>
-<button class="odd-btn">2.10</button>
+<button>1.90</button>
+<button>3.40</button>
+<button>2.10</button>
 </div>
 
 </div>
 
-<div class="match-card">
+<div class="card">
 
-<p class="league">La Liga</p>
+<div class="league">La Liga</div>
 
 <div class="teams">
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg">
-<h3>Barcelona</h3>
-</div>
-
+<div class="team">Barcelona</div>
 <div class="vs">VS</div>
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg">
-<h3>Atletico</h3>
-</div>
-
+<div class="team">Atletico</div>
 </div>
 
 <div class="odds">
-<button class="odd-btn">2.00</button>
-<button class="odd-btn">3.10</button>
-<button class="odd-btn">2.40</button>
-</div>
-
-</div>
-
-<div class="match-card">
-
-<p class="league">Serie A</p>
-
-<div class="teams">
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Juventus_FC_2017_logo.svg">
-<h3>Juventus</h3>
-</div>
-
-<div class="vs">VS</div>
-
-<div class="team">
-<img src="https://upload.wikimedia.org/wikipedia/en/d/d0/Inter_Milan_logo.svg">
-<h3>Inter</h3>
-</div>
-
-</div>
-
-<div class="odds">
-<button class="odd-btn">1.75</button>
-<button class="odd-btn">3.60</button>
-<button class="odd-btn">2.50</button>
+<button>2.20</button>
+<button>3.00</button>
+<button>2.45</button>
 </div>
 
 </div>
@@ -434,28 +321,19 @@ on mobile and desktop.
 
 <section class="features">
 
-<div class="feature-card">
-<h2>⚡ Fast Withdrawals</h2>
-<p>
-Withdraw winnings instantly through M-Pesa,
-bank or mobile wallet.
-</p>
+<div class="feature">
+<h2>⚡ Fast Betting</h2>
+<p>Place bets instantly with smooth UI and real-time updates.</p>
 </div>
 
-<div class="feature-card">
-<h2>📱 Mobile Friendly</h2>
-<p>
-Optimized for all devices with smooth betting
-experience on smartphones.
-</p>
+<div class="feature">
+<h2>🔒 Secure</h2>
+<p>Safe transactions and protected user accounts.</p>
 </div>
 
-<div class="feature-card">
-<h2>🔒 Secure Platform</h2>
-<p>
-Advanced security system protecting accounts,
-payments and personal information.
-</p>
+<div class="feature">
+<h2>📱 Mobile Ready</h2>
+<p>Fully responsive design for all devices.</p>
 </div>
 
 </section>
@@ -467,4 +345,4 @@ payments and personal information.
 </footer>
 
 </body>
-  </html>
+</html>
