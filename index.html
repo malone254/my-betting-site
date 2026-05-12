@@ -31,34 +31,23 @@ font-weight:bold;
 font-size:20px;
 }
 
-/* LEAGUE TABS */
-.tabs{
-display:flex;
-overflow-x:auto;
-background:#0f1728;
-padding:10px;
-gap:10px;
-border-bottom:1px solid #1f2a44;
+/* HERO */
+.hero{
+padding:20px;
+text-align:center;
 }
 
-.tab{
-flex:0 0 auto;
-padding:8px 14px;
-border-radius:20px;
-background:#121a2f;
-border:1px solid #1f2a44;
-cursor:pointer;
+.hero h1{
+font-size:26px;
+margin:10px 0;
+}
+
+.sub{
+opacity:0.7;
 font-size:14px;
-white-space:nowrap;
 }
 
-.tab.active{
-background:#00ff9d;
-color:black;
-font-weight:bold;
-}
-
-/* CONTENT */
+/* MATCH LIST */
 .container{
 padding:15px;
 padding-bottom:80px;
@@ -75,6 +64,12 @@ border:1px solid #1f2a44;
 .team{
 font-size:18px;
 font-weight:bold;
+}
+
+.league{
+font-size:12px;
+opacity:0.7;
+margin-top:4px;
 }
 
 .time{
@@ -122,27 +117,19 @@ opacity:0.8;
 
 <!-- TOP BAR -->
 <div class="topbar">
-<div class="logo">MaloneBet</div>
-<div>⚽ Upcoming</div>
+<div class="logo">⚽ MaloneBet</div>
+<div>Upcoming</div>
 </div>
 
-<!-- LEAGUE TABS -->
-<div class="tabs">
-<div class="tab active" onclick="filterLeague('all')">All</div>
-<div class="tab" onclick="filterLeague('soccer_epl')">EPL</div>
-<div class="tab" onclick="filterLeague('soccer_spain_la_liga')">La Liga</div>
-<div class="tab" onclick="filterLeague('soccer_germany_bundesliga')">Bundesliga</div>
-<div class="tab" onclick="filterLeague('soccer_italy_serie_a')">Serie A</div>
-<div class="tab" onclick="filterLeague('soccer_france_ligue_one')">Ligue 1</div>
+<!-- HERO -->
+<div class="hero">
+<h1>Big 5 Upcoming Matches</h1>
+<p class="sub">EPL • La Liga • Bundesliga • Serie A • Ligue 1</p>
 </div>
 
-<!-- CONTENT -->
+<!-- MATCHES -->
 <div class="container">
-
-<h2>⚽ Upcoming Matches</h2>
-
 <div id="matches">Loading matches...</div>
-
 </div>
 
 <!-- BOTTOM NAV -->
@@ -155,56 +142,29 @@ opacity:0.8;
 
 <script>
 
-let allMatches = [];
-let currentLeague = "all";
-
-/* LOAD MATCHES */
 async function loadMatches(){
 
 const res = await fetch('/api/matches');
 const data = await res.json();
 
-allMatches = data;
-render();
-
-}
-
-/* FILTER LEAGUE */
-function filterLeague(league){
-
-currentLeague = league;
-
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-event.target.classList.add("active");
-
-render();
-
-}
-
-/* RENDER MATCHES */
-function render(){
-
 const box = document.getElementById("matches");
 box.innerHTML = "";
 
-let filtered = allMatches;
-
-if(currentLeague !== "all"){
-filtered = allMatches.filter(m => m.sport_key === currentLeague);
-}
-
-if(filtered.length === 0){
-box.innerHTML = "<p>No matches found</p>";
+if(!data || data.length === 0){
+box.innerHTML = "<p>No upcoming matches found</p>";
 return;
 }
 
-filtered.forEach(m => {
+data.forEach(m => {
 
 const div = document.createElement("div");
 div.className = "card";
 
+let league = m.sport_key.replace("soccer_","").toUpperCase();
+
 div.innerHTML = `
 <div class="team">${m.home_team} vs ${m.away_team}</div>
+<div class="league">${league}</div>
 <div class="time">${new Date(m.commence_time).toLocaleString()}</div>
 <a class="btn" href="/live">View Odds</a>
 `;
