@@ -1,33 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <title>Live Betting</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0b1220;color:white}
-.card{background:#111c31;padding:15px;margin:10px;border-radius:10px}
-#betSlip{position:fixed;right:0;top:0;width:250px;height:100vh;background:#0d1728;padding:10px;overflow:auto}
-button{padding:8px;margin:5px;background:#00ff9d;border:none;cursor:pointer}
+body{
+margin:0;
+font-family:Arial;
+background:#0a0f1c;
+color:white;
+}
+
+/* TOP BAR */
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+background:#111a2e;
+border-bottom:1px solid #1f2a44;
+position:sticky;
+top:0;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+margin:0 10px;
+opacity:0.8;
+}
+
+nav a:hover{
+opacity:1;
+color:#00ff9d;
+}
+
+/* MAIN LAYOUT */
+.wrapper{
+display:flex;
+}
+
+/* MATCH LIST */
+.matches{
+flex:3;
+padding:20px;
+}
+
+.card{
+background:#121a2f;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+border:1px solid #1f2a44;
+}
+
+.teams{
+font-size:16px;
+margin-bottom:10px;
+}
+
+.odds button{
+margin-right:8px;
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#1f2a44;
+color:white;
+}
+
+.odds button:hover{
+background:#00ff9d;
+color:black;
+}
+
+/* BET SLIP */
+.slip{
+width:320px;
+background:#0f1728;
+border-left:1px solid #1f2a44;
+height:100vh;
+position:sticky;
+top:0;
+padding:15px;
+overflow-y:auto;
+}
+
+.slip h2{
+color:#00ff9d;
+}
+
+.bet-item{
+background:#121a2f;
+padding:10px;
+margin-bottom:10px;
+border-radius:8px;
+font-size:14px;
+border:1px solid #1f2a44;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+
+.place-btn{
+width:100%;
+margin-top:10px;
+padding:12px;
+background:#00ff9d;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.place-btn:hover{
+background:#00e68a;
+}
 </style>
+
 </head>
 
 <body>
 
-<div id="betSlip">
-<h3>Bet Slip</h3>
-<div id="slip"></div>
-<input id="stake" placeholder="Stake">
-<p id="win">Win: 0</p>
-<button onclick="placeBet()">Place Bet</button>
+<nav>
+<div><b style="color:#00ff9d">MaloneBet</b></div>
+<div>
+<a href="/">Home</a>
+<a href="/live">Live</a>
+<a href="/login">Login</a>
+</div>
+</nav>
+
+<div class="wrapper">
+
+<!-- MATCHES -->
+<div class="matches">
+<h2>⚽ Live Matches</h2>
+<div id="matches"></div>
 </div>
 
-<div id="matches"></div>
+<!-- BET SLIP -->
+<div class="slip">
+<h2>Bet Slip</h2>
+
+<div id="slip"></div>
+
+<input id="stake" placeholder="Enter stake">
+
+<p id="win">Potential Win: 0</p>
+
+<button class="place-btn" onclick="placeBet()">Place Bet</button>
+</div>
+
+</div>
 
 <script>
 
 let bets = [];
 
 async function loadMatches(){
+
 const res = await fetch('/api/matches');
 const data = await res.json();
 
@@ -39,9 +177,13 @@ const div = document.createElement('div');
 div.className = "card";
 
 div.innerHTML = `
-<h3>${m.home_team} vs ${m.away_team}</h3>
-<button onclick="addBet('${m.home_team} vs ${m.away_team}',1.9)">1.9</button>
-<button onclick="addBet('${m.home_team} vs ${m.away_team}',2.1)">2.1</button>
+<div class="teams">${m.home_team} vs ${m.away_team}</div>
+
+<div class="odds">
+<button onclick="addBet('${m.home_team} vs ${m.away_team}',1.8)">1.8</button>
+<button onclick="addBet('${m.home_team} vs ${m.away_team}',2.2)">2.2</button>
+<button onclick="addBet('${m.home_team} vs ${m.away_team}',3.0)">3.0</button>
+</div>
 `;
 
 box.appendChild(div);
@@ -52,28 +194,34 @@ box.appendChild(div);
 
 function addBet(match,odds){
 bets.push({match,odds});
-render();
+renderSlip();
 }
 
-function render(){
-let slip = document.getElementById("slip");
+function renderSlip(){
+
+const slip = document.getElementById("slip");
 slip.innerHTML = "";
 
 let total = 1;
 
-bets.forEach((b,i)=>{
+bets.forEach(b=>{
 total *= b.odds;
 
 slip.innerHTML += `
-<p>${b.match} - ${b.odds}</p>
+<div class="bet-item">
+${b.match}<br>
+Odds: ${b.odds}
+</div>
 `;
 });
 
+let stake = document.getElementById("stake").value || 0;
 document.getElementById("win").innerText =
-"Win: " + (document.getElementById("stake").value * total || 0);
+"Potential Win: " + (stake * total).toFixed(2);
+
 }
 
-document.getElementById("stake").addEventListener("input",render);
+document.getElementById("stake").addEventListener("input",renderSlip);
 
 async function placeBet(){
 
@@ -86,7 +234,9 @@ stake:document.getElementById('stake').value
 })
 });
 
-alert("Bet placed!");
+alert("Bet placed successfully!");
+bets = [];
+renderSlip();
 }
 
 loadMatches();
