@@ -3,148 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aviator Game</title>
+<title>Aviator Pro</title>
 
 <script src="/socket.io/socket.io.js"></script>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0b1220;
+  font-family: system-ui, Arial;
+  background: radial-gradient(circle at top, #0f172a, #050814);
   color: white;
-  text-align: center;
+  overflow-x: hidden;
 }
 
-/* HEADER */
-.header {
+/* TOP BAR */
+.top {
+  display: flex;
+  justify-content: space-between;
   padding: 15px;
-  font-size: 20px;
-  font-weight: bold;
-  background: #111a2e;
+  background: rgba(255,255,255,0.05);
+}
+
+/* GAME AREA */
+.game {
+  height: 55vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 /* MULTIPLIER */
-.multiplier {
-  font-size: 60px;
-  margin-top: 40px;
+#multiplier {
+  font-size: 70px;
   font-weight: bold;
-  color: #00ff88;
+  color: #00ff99;
+  text-shadow: 0 0 20px rgba(0,255,153,0.5);
 }
 
 /* STATUS */
-.status {
+#status {
   margin-top: 10px;
-  font-size: 16px;
   color: #aaa;
+}
+
+/* PLANE (simple animation feel) */
+.plane {
+  width: 120px;
+  position: absolute;
+  bottom: 20px;
+  transition: transform 0.1s linear;
 }
 
 /* PANEL */
 .panel {
-  margin-top: 30px;
+  background: rgba(255,255,255,0.05);
   padding: 20px;
+  border-radius: 15px;
+  margin: 10px;
 }
 
-/* INPUT */
 input {
-  width: 80%;
+  width: 100%;
   padding: 12px;
-  font-size: 18px;
   border-radius: 10px;
   border: none;
-  outline: none;
+  margin-bottom: 10px;
+  font-size: 16px;
   text-align: center;
 }
 
-/* BUTTONS */
 button {
-  width: 85%;
-  padding: 15px;
-  margin-top: 10px;
-  font-size: 18px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
   border: none;
   border-radius: 10px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-.bet {
-  background: #1f6fff;
-  color: white;
-}
-
-.cashout {
-  background: #00c853;
-  color: white;
-}
+.bet { background: #2563eb; color: white; }
+.cashout { background: #16a34a; color: white; }
+.disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* HISTORY */
 .history {
-  margin-top: 25px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
   padding: 10px;
 }
 
 .badge {
-  display: inline-block;
-  background: #1f2a44;
+  background: #1f2937;
   padding: 5px 10px;
-  margin: 3px;
-  border-radius: 5px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">🚀 AVIATOR GAME</div>
+<div class="top">
+  <div>🚀 Aviator Pro</div>
+  <div id="wallet">Balance: 1000</div>
+</div>
 
-<div class="multiplier" id="multiplier">1.00x</div>
-<div class="status" id="status">Waiting for round...</div>
+<div class="game">
+  <div id="multiplier">1.00x</div>
+  <div id="status">Waiting for round...</div>
+
+  <img class="plane" id="plane"
+  src="https://cdn-icons-png.flaticon.com/512/2933/2933790.png">
+</div>
 
 <div class="panel">
-  <input type="number" id="bet" placeholder="Enter Bet Amount">
+  <input type="number" id="bet" placeholder="Enter bet">
 
   <button class="bet" onclick="placeBet()">Place Bet</button>
   <button class="cashout" onclick="cashout()">Cashout</button>
 </div>
 
-<div class="history">
-  <h3>History</h3>
-  <div id="history"></div>
-</div>
+<div class="history" id="history"></div>
 
 <script>
 const socket = io();
 
-let currentMultiplier = 1;
+let multiplier = 1;
+let bet = 0;
 let betPlaced = false;
+let wallet = 1000;
 
 /* LIVE MULTIPLIER */
-socket.on("multiplier", (data) => {
-  currentMultiplier = data;
-  document.getElementById("multiplier").innerText = data.toFixed(2) + "x";
-  document.getElementById("status").innerText = "Flying...";
+socket.on("multiplier", (m) => {
+  multiplier = m;
+  document.getElementById("multiplier").innerText = m.toFixed(2) + "x";
+  document.getElementById("status").innerText = "Flying... 🚀";
+
+  /* plane movement effect */
+  let plane = document.getElementById("plane");
+  plane.style.transform = `translateY(-${m * 10}px)`;
 });
 
 /* CRASH */
 socket.on("crash", (point) => {
-  document.getElementById("status").innerText = "CRASHED at " + point + "x";
+  document.getElementById("status").innerText = "💥 CRASHED at " + point + "x";
   betPlaced = false;
 });
 
 /* HISTORY */
 socket.on("history", (data) => {
   let html = "";
-  data.forEach(h => {
-    html += `<span class="badge">${h}x</span>`;
+  data.forEach(x => {
+    html += `<div class="badge">${x}x</div>`;
   });
   document.getElementById("history").innerHTML = html;
 });
 
-/* PLACE BET */
+/* BET */
 function placeBet() {
-  const bet = document.getElementById("bet").value;
-  if (!bet) return alert("Enter bet amount");
+  bet = Number(document.getElementById("bet").value);
+
+  if (bet <= 0) return alert("Enter bet");
+
+  if (bet > wallet) return alert("Not enough balance");
+
+  wallet -= bet;
+  document.getElementById("wallet").innerText = "Balance: " + wallet;
 
   betPlaced = true;
   alert("Bet placed: " + bet);
@@ -152,17 +181,16 @@ function placeBet() {
 
 /* CASHOUT */
 function cashout() {
-  const bet = document.getElementById("bet").value;
+  if (!betPlaced) return alert("No active bet");
 
-  if (!betPlaced) {
-    alert("Place bet first");
-    return;
-  }
-
-  socket.emit("cashout", { bet: Number(bet) });
+  socket.emit("cashout", { bet });
 
   socket.on("cashout_success", (data) => {
-    alert("Cashed out at " + data.multiplier + "x\nWon: " + data.payout);
+    wallet += data.payout;
+    document.getElementById("wallet").innerText = "Balance: " + wallet;
+
+    alert(`Cashed out at ${data.multiplier}x\nWon: ${data.payout}`);
+
     betPlaced = false;
   });
 }
