@@ -6,66 +6,96 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+/* Serve frontend */
 app.use(express.static("public"));
 
+/* GAME STATE */
 let game = {
   multiplier: 1.0,
   crashPoint: 0,
   running: false,
-  bets: {}
+  bets: {},
+  history: []
 };
 
-/* START GAME LOOP */
+/* START GAME */
 function startGame() {
 
-game = {
-multiplier: 1.0,
-crashPoint: (Math.random() * 8 + 1.5).toFixed(2),
-running: true,
-bets: {}
-};
+  game = {
+    multiplier: 1.0,
+    crashPoint: parseFloat((Math.random() * 8 + 1.5).toFixed(2)),
+    running: true,
+    bets: {},
+    history: game.history
+  };
 
-console.log("Crash at:", game.crashPoint);
+  console.log("🚀 Crash at:", game.crashPoint);
 
-/* MULTIPLIER LOOP */
-const interval = setInterval(() => {
+  io.emit("game_start");
 
-game.multiplier += 0.05;
-game.multiplier = parseFloat(game.multiplier.toFixed(2));
+  const interval = setInterval(() => {
 
-io.emit("multiplier", game.multiplier);
+    game.multiplier += 0.05;
+    game.multiplier = parseFloat(game.multiplier.toFixed(2));
 
-/* CRASH */
-if(game.multiplier >= game.crashPoint){
-clearInterval(interval);
-io.emit("crash", game.crashPoint);
-game.running = false;
+    io.emit("multiplier", game.multiplier);
 
-/* restart after 5s */
-setTimeout(startGame, 5000);
+    /* CRASH */
+    if (game.multiplier >= game.crashPoint) {
+
+      clearInterval(interval);
+
+      game.running = false;
+
+      io.emit("crash", game.crashPoint);
+
+      /* save history */
+      game.history.unshift(game.crashPoint);
+      if (game.history.length > 10) game.history.pop();
+
+      /* restart after 5s */
+      setTimeout(startGame, 5000);
+    }
+
+  }, 100);
+
 }
 
-},100);
-
-}
-
-/* SOCKET */
+/* SOCKET CONNECTION */
 io.on("connection", (socket) => {
 
-socket.emit("multiplier", game.multiplier);
+  console.log("User connected");
 
-socket.on("cashout", (data) => {
+  /* send current state */
+  socket.emit("multiplier", game.multiplier);
+  socket.emit("history", game.history);
 
-if(!game.running) return;
+  /* CASH OUT */
+  socket.on("cashout", (data) => {
 
-let payout = data.bet * game.multiplier;
+    if (!game.running) return;
 
-socket.emit("cashout_success", payout);
+    let bet = data.bet || 0;
+
+    if (bet <= 0) return;
+
+    let payout = bet * game.multiplier;
+
+    socket.emit("cashout_success", {
+      multiplier: game.multiplier,
+      payout: payout
+    });
+
+  });
 
 });
 
-});
-
+/* START GAME LOOP */
 startGame();
 
-server.listen(3000, () => console.log("Aviator running"));
+/* IMPORTANT: RENDER PORT FIX */
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log("✅ Aviator running on port " + PORT);
+});
