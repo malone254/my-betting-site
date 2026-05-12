@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Live Betting</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#0b1220;color:white}
+.card{background:#111c31;padding:15px;margin:10px;border-radius:10px}
+#betSlip{position:fixed;right:0;top:0;width:250px;height:100vh;background:#0d1728;padding:10px;overflow:auto}
+button{padding:8px;margin:5px;background:#00ff9d;border:none;cursor:pointer}
+</style>
+</head>
+
+<body>
+
+<div id="betSlip">
+<h3>Bet Slip</h3>
+<div id="slip"></div>
+<input id="stake" placeholder="Stake">
+<p id="win">Win: 0</p>
+<button onclick="placeBet()">Place Bet</button>
+</div>
+
+<div id="matches"></div>
+
+<script>
+
+let bets = [];
+
+async function loadMatches(){
+const res = await fetch('/api/matches');
+const data = await res.json();
+
+const box = document.getElementById('matches');
+
+data.forEach(m => {
+
+const div = document.createElement('div');
+div.className = "card";
+
+div.innerHTML = `
+<h3>${m.home_team} vs ${m.away_team}</h3>
+<button onclick="addBet('${m.home_team} vs ${m.away_team}',1.9)">1.9</button>
+<button onclick="addBet('${m.home_team} vs ${m.away_team}',2.1)">2.1</button>
+`;
+
+box.appendChild(div);
+
+});
+
+}
+
+function addBet(match,odds){
+bets.push({match,odds});
+render();
+}
+
+function render(){
+let slip = document.getElementById("slip");
+slip.innerHTML = "";
+
+let total = 1;
+
+bets.forEach((b,i)=>{
+total *= b.odds;
+
+slip.innerHTML += `
+<p>${b.match} - ${b.odds}</p>
+`;
+});
+
+document.getElementById("win").innerText =
+"Win: " + (document.getElementById("stake").value * total || 0);
+}
+
+document.getElementById("stake").addEventListener("input",render);
+
+async function placeBet(){
+
+await fetch('/api/bet',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+bets,
+stake:document.getElementById('stake').value
+})
+});
+
+alert("Bet placed!");
+}
+
+loadMatches();
+
+</script>
+
+</body>
+</html>
