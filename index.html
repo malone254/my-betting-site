@@ -20,65 +20,83 @@ justify-content:space-between;
 align-items:center;
 padding:15px;
 background:#111a2e;
+border-bottom:1px solid #1f2a44;
 position:sticky;
 top:0;
-border-bottom:1px solid #1f2a44;
 }
 
 .logo{
 color:#00ff9d;
-font-weight:bold;
 font-size:20px;
+font-weight:bold;
 }
 
-/* CONTENT */
-.container{
-padding:15px;
-padding-bottom:80px;
+/* NAV BUTTONS */
+.navbar{
+display:flex;
+gap:10px;
+overflow-x:auto;
+padding:10px;
+background:#0f1728;
+border-bottom:1px solid #1f2a44;
 }
 
-h1{
-font-size:26px;
-margin:10px 0;
+.navbtn{
+background:#1f2a44;
+padding:8px 12px;
+border-radius:20px;
+color:white;
+text-decoration:none;
+font-size:13px;
+white-space:nowrap;
 }
 
-.sub{
-opacity:0.7;
-font-size:14px;
+.navbtn:hover{
+background:#00ff9d;
+color:black;
 }
 
-/* MATCH CARD */
+/* SECTIONS */
+h2{
+padding:10px 15px;
+color:#00ff9d;
+font-size:18px;
+}
+
 .card{
 background:#121a2f;
+margin:10px 15px;
 padding:15px;
-margin-bottom:12px;
-border-radius:14px;
+border-radius:12px;
 border:1px solid #1f2a44;
 }
 
-.team{
-font-size:18px;
+.match{
+font-size:17px;
 font-weight:bold;
-margin-bottom:5px;
 }
 
-.time{
-font-size:13px;
+.date{
+font-size:12px;
 opacity:0.7;
+margin-bottom:10px;
 }
 
-/* BUTTON */
-.btn{
-display:block;
-text-align:center;
-margin-top:10px;
-padding:12px;
+/* ODDS */
+.odds button{
+margin:5px 5px 0 0;
+padding:8px 10px;
+border:none;
+border-radius:6px;
+background:#1f2a44;
+color:white;
+font-size:13px;
+cursor:pointer;
+}
+
+.odds button:hover{
 background:#00ff9d;
 color:black;
-text-decoration:none;
-border-radius:10px;
-font-weight:bold;
-font-size:15px;
 }
 
 /* BOTTOM NAV (APP STYLE) */
@@ -97,20 +115,13 @@ border-top:1px solid #1f2a44;
 .bottomnav a{
 color:white;
 text-decoration:none;
-font-size:13px;
-text-align:center;
+font-size:12px;
 opacity:0.8;
+text-align:center;
 }
 
 .bottomnav a:hover{
 color:#00ff9d;
-opacity:1;
-}
-
-/* LOADING */
-.loading{
-opacity:0.7;
-font-size:14px;
 }
 </style>
 
@@ -118,35 +129,34 @@ font-size:14px;
 
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
 <div class="logo">MaloneBet</div>
-<div>⚽ Live</div>
+<div>⚽ Sportsbook</div>
 </div>
 
-<!-- MAIN -->
-<div class="container">
-
-<h1>Today's Matches</h1>
-<p class="sub">Tap a game to start betting</p>
-
-<div id="matches" class="loading">Loading live games...</div>
-
+<!-- NAV BUTTONS -->
+<div class="navbar">
+<a class="navbtn" href="/">Home</a>
+<a class="navbtn" href="/live">Live</a>
+<a class="navbtn" href="/login">Login</a>
+<a class="navbtn" href="/register">Register</a>
+<a class="navbtn" href="#">More</a>
 </div>
+
+<h2>⚽ Today & Upcoming Games</h2>
+<div id="matches"></div>
 
 <!-- BOTTOM NAV -->
 <div class="bottomnav">
 <a href="/">🏠<br>Home</a>
-<a href="/live">⚽<br>Live</a>
+<a href="/live">🔴<br>Live</a>
 <a href="/login">🔐<br>Login</a>
 <a href="/register">👤<br>Register</a>
 </div>
 
 <script>
 
-async function loadMatches(){
-
-try{
+async function load(){
 
 const res = await fetch('/api/matches');
 const data = await res.json();
@@ -154,34 +164,31 @@ const data = await res.json();
 const box = document.getElementById("matches");
 box.innerHTML = "";
 
-if(!data || data.length === 0){
-box.innerHTML = "No matches available";
-return;
-}
-
 data.forEach(m => {
 
 const div = document.createElement("div");
 div.className = "card";
 
 div.innerHTML = `
-<div class="team">${m.home_team} vs ${m.away_team}</div>
-<div class="time">${new Date(m.commence_time).toLocaleString()}</div>
+<div class="match">${m.home_team} vs ${m.away_team}</div>
+<div class="date">${new Date(m.commence_time).toLocaleString()}</div>
 
-<a class="btn" href="/live">Bet Now</a>
+<div class="odds">
+<button>1</button>
+<button>X</button>
+<button>2</button>
+<button>O2.5</button>
+<button>U2.5</button>
+</div>
 `;
 
 box.appendChild(div);
 
 });
 
-}catch(err){
-document.getElementById("matches").innerHTML = "Failed to load games";
 }
 
-}
-
-loadMatches();
+load();
 
 </script>
 
