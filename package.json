@@ -1,14 +1,16 @@
 {
-  "name": "malonebet",
+  "name": "aviator-crash-game",
   "version": "1.0.0",
-  "description": "Modern betting website",
+  "description": "Real-time Aviator style crash game (Socket.io)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2",
-    "axios": "^1.6.0",
-    "mongoose": "^8.0.0"
+    "socket.io": "^4.7.5"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
