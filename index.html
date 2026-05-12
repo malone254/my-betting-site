@@ -27,79 +27,75 @@ top:0;
 
 .logo{
 color:#00ff9d;
-font-size:20px;
 font-weight:bold;
+font-size:20px;
 }
 
-/* NAV BUTTONS */
-.navbar{
+/* LEAGUE TABS */
+.tabs{
 display:flex;
-gap:10px;
 overflow-x:auto;
-padding:10px;
 background:#0f1728;
+padding:10px;
+gap:10px;
 border-bottom:1px solid #1f2a44;
 }
 
-.navbtn{
-background:#1f2a44;
-padding:8px 12px;
+.tab{
+flex:0 0 auto;
+padding:8px 14px;
 border-radius:20px;
-color:white;
-text-decoration:none;
-font-size:13px;
+background:#121a2f;
+border:1px solid #1f2a44;
+cursor:pointer;
+font-size:14px;
 white-space:nowrap;
 }
 
-.navbtn:hover{
+.tab.active{
 background:#00ff9d;
 color:black;
+font-weight:bold;
 }
 
-/* SECTIONS */
-h2{
-padding:10px 15px;
-color:#00ff9d;
-font-size:18px;
+/* CONTENT */
+.container{
+padding:15px;
+padding-bottom:80px;
 }
 
 .card{
 background:#121a2f;
-margin:10px 15px;
 padding:15px;
+margin-bottom:10px;
 border-radius:12px;
 border:1px solid #1f2a44;
 }
 
-.match{
-font-size:17px;
+.team{
+font-size:18px;
 font-weight:bold;
 }
 
-.date{
-font-size:12px;
-opacity:0.7;
-margin-bottom:10px;
-}
-
-/* ODDS */
-.odds button{
-margin:5px 5px 0 0;
-padding:8px 10px;
-border:none;
-border-radius:6px;
-background:#1f2a44;
-color:white;
+.time{
 font-size:13px;
-cursor:pointer;
+opacity:0.7;
+margin-top:5px;
 }
 
-.odds button:hover{
+.btn{
+display:block;
+margin-top:10px;
+padding:10px;
 background:#00ff9d;
 color:black;
+text-align:center;
+text-decoration:none;
+border-radius:10px;
+font-weight:bold;
 }
 
-/* BOTTOM NAV (APP STYLE) */
+/* BOTTOM NAV */
 .bottomnav{
 position:fixed;
 bottom:0;
@@ -115,13 +111,8 @@ border-top:1px solid #1f2a44;
 .bottomnav a{
 color:white;
 text-decoration:none;
-font-size:12px;
+font-size:13px;
 opacity:0.8;
-text-align:center;
-}
-
-.bottomnav a:hover{
-color:#00ff9d;
 }
 </style>
 
@@ -129,57 +120,93 @@ color:#00ff9d;
 
 <body>
 
+<!-- TOP BAR -->
 <div class="topbar">
 <div class="logo">MaloneBet</div>
-<div>⚽ Sportsbook</div>
+<div>⚽ Upcoming</div>
 </div>
 
-<!-- NAV BUTTONS -->
-<div class="navbar">
-<a class="navbtn" href="/">Home</a>
-<a class="navbtn" href="/live">Live</a>
-<a class="navbtn" href="/login">Login</a>
-<a class="navbtn" href="/register">Register</a>
-<a class="navbtn" href="#">More</a>
+<!-- LEAGUE TABS -->
+<div class="tabs">
+<div class="tab active" onclick="filterLeague('all')">All</div>
+<div class="tab" onclick="filterLeague('soccer_epl')">EPL</div>
+<div class="tab" onclick="filterLeague('soccer_spain_la_liga')">La Liga</div>
+<div class="tab" onclick="filterLeague('soccer_germany_bundesliga')">Bundesliga</div>
+<div class="tab" onclick="filterLeague('soccer_italy_serie_a')">Serie A</div>
+<div class="tab" onclick="filterLeague('soccer_france_ligue_one')">Ligue 1</div>
 </div>
 
-<h2>⚽ Today & Upcoming Games</h2>
-<div id="matches"></div>
+<!-- CONTENT -->
+<div class="container">
+
+<h2>⚽ Upcoming Matches</h2>
+
+<div id="matches">Loading matches...</div>
+
+</div>
 
 <!-- BOTTOM NAV -->
 <div class="bottomnav">
-<a href="/">🏠<br>Home</a>
-<a href="/live">🔴<br>Live</a>
-<a href="/login">🔐<br>Login</a>
-<a href="/register">👤<br>Register</a>
+<a href="/">🏠 Home</a>
+<a href="/live">⚽ Live</a>
+<a href="/login">🔐 Login</a>
+<a href="/register">👤 Register</a>
 </div>
 
 <script>
 
-async function load(){
+let allMatches = [];
+let currentLeague = "all";
+
+/* LOAD MATCHES */
+async function loadMatches(){
 
 const res = await fetch('/api/matches');
 const data = await res.json();
 
+allMatches = data;
+render();
+
+}
+
+/* FILTER LEAGUE */
+function filterLeague(league){
+
+currentLeague = league;
+
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+event.target.classList.add("active");
+
+render();
+
+}
+
+/* RENDER MATCHES */
+function render(){
+
 const box = document.getElementById("matches");
 box.innerHTML = "";
 
-data.forEach(m => {
+let filtered = allMatches;
+
+if(currentLeague !== "all"){
+filtered = allMatches.filter(m => m.sport_key === currentLeague);
+}
+
+if(filtered.length === 0){
+box.innerHTML = "<p>No matches found</p>";
+return;
+}
+
+filtered.forEach(m => {
 
 const div = document.createElement("div");
 div.className = "card";
 
 div.innerHTML = `
-<div class="match">${m.home_team} vs ${m.away_team}</div>
-<div class="date">${new Date(m.commence_time).toLocaleString()}</div>
-
-<div class="odds">
-<button>1</button>
-<button>X</button>
-<button>2</button>
-<button>O2.5</button>
-<button>U2.5</button>
-</div>
+<div class="team">${m.home_team} vs ${m.away_team}</div>
+<div class="time">${new Date(m.commence_time).toLocaleString()}</div>
+<a class="btn" href="/live">View Odds</a>
 `;
 
 box.appendChild(div);
@@ -188,7 +215,7 @@ box.appendChild(div);
 
 }
 
-load();
+loadMatches();
 
 </script>
 
