@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MaloneBet</title>
 
 <style>
@@ -12,96 +13,104 @@ background:#0a0f1c;
 color:white;
 }
 
-/* NAV */
-nav{
+/* TOP BAR */
+.topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px 20px;
+padding:15px;
 background:#111a2e;
-border-bottom:1px solid #1f2a44;
 position:sticky;
 top:0;
+border-bottom:1px solid #1f2a44;
 }
 
-nav a{
-color:white;
-text-decoration:none;
-margin:0 10px;
-opacity:0.8;
-}
-
-nav a:hover{
-opacity:1;
+.logo{
 color:#00ff9d;
-}
-
-/* HERO */
-.hero{
-text-align:center;
-padding:80px 20px;
-}
-
-.hero h1{
-font-size:42px;
-margin-bottom:10px;
-}
-
-.highlight{
-color:#00ff9d;
-}
-
-.hero p{
-opacity:0.8;
-font-size:18px;
-}
-
-.btn{
-margin-top:20px;
-display:inline-block;
-padding:12px 25px;
-background:#00ff9d;
-color:black;
-border:none;
-border-radius:8px;
 font-weight:bold;
-text-decoration:none;
+font-size:20px;
 }
 
-.btn:hover{
-background:#00e68a;
+/* CONTENT */
+.container{
+padding:15px;
+padding-bottom:80px;
 }
 
-/* CARDS */
-.section{
-padding:30px 20px;
+h1{
+font-size:26px;
+margin:10px 0;
 }
 
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-top:20px;
+.sub{
+opacity:0.7;
+font-size:14px;
 }
 
+/* MATCH CARD */
 .card{
 background:#121a2f;
-padding:20px;
-border-radius:10px;
+padding:15px;
+margin-bottom:12px;
+border-radius:14px;
 border:1px solid #1f2a44;
 }
 
-.card:hover{
-border-color:#00ff9d;
-transform:scale(1.03);
-transition:0.2s;
+.team{
+font-size:18px;
+font-weight:bold;
+margin-bottom:5px;
 }
 
-.footer{
+.time{
+font-size:13px;
+opacity:0.7;
+}
+
+/* BUTTON */
+.btn{
+display:block;
 text-align:center;
-padding:20px;
-opacity:0.6;
-margin-top:40px;
+margin-top:10px;
+padding:12px;
+background:#00ff9d;
+color:black;
+text-decoration:none;
+border-radius:10px;
+font-weight:bold;
+font-size:15px;
+}
+
+/* BOTTOM NAV (APP STYLE) */
+.bottomnav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+display:flex;
+justify-content:space-around;
+background:#111a2e;
+padding:10px 0;
+border-top:1px solid #1f2a44;
+}
+
+.bottomnav a{
+color:white;
+text-decoration:none;
+font-size:13px;
+text-align:center;
+opacity:0.8;
+}
+
+.bottomnav a:hover{
+color:#00ff9d;
+opacity:1;
+}
+
+/* LOADING */
+.loading{
+opacity:0.7;
+font-size:14px;
 }
 </style>
 
@@ -109,51 +118,72 @@ margin-top:40px;
 
 <body>
 
-<nav>
-<div><b style="color:#00ff9d">MaloneBet</b></div>
-<div>
-<a href="/">Home</a>
-<a href="/live">Live Betting</a>
-<a href="/login">Login</a>
-</div>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-<h1>Welcome to <span class="highlight">MaloneBet</span></h1>
-<p>Fast odds • Real matches • Instant betting experience</p>
-
-<a href="/live" class="btn">Start Betting</a>
+<!-- TOP BAR -->
+<div class="topbar">
+<div class="logo">MaloneBet</div>
+<div>⚽ Live</div>
 </div>
 
-<!-- FEATURES -->
-<div class="section">
-<h2>🔥 Why Choose Us</h2>
+<!-- MAIN -->
+<div class="container">
 
-<div class="cards">
+<h1>Today's Matches</h1>
+<p class="sub">Tap a game to start betting</p>
 
-<div class="card">
-<h3>Live Odds</h3>
-<p>Real-time football betting updates</p>
-</div>
-
-<div class="card">
-<h3>Fast Bets</h3>
-<p>Instant bet placement system</p>
-</div>
-
-<div class="card">
-<h3>Secure</h3>
-<p>Safe betting environment</p>
-</div>
+<div id="matches" class="loading">Loading live games...</div>
 
 </div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+<a href="/">🏠<br>Home</a>
+<a href="/live">⚽<br>Live</a>
+<a href="/login">🔐<br>Login</a>
+<a href="/register">👤<br>Register</a>
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-© 2026 MaloneBet • All rights reserved
-</div>
+<script>
+
+async function loadMatches(){
+
+try{
+
+const res = await fetch('/api/matches');
+const data = await res.json();
+
+const box = document.getElementById("matches");
+box.innerHTML = "";
+
+if(!data || data.length === 0){
+box.innerHTML = "No matches available";
+return;
+}
+
+data.forEach(m => {
+
+const div = document.createElement("div");
+div.className = "card";
+
+div.innerHTML = `
+<div class="team">${m.home_team} vs ${m.away_team}</div>
+<div class="time">${new Date(m.commence_time).toLocaleString()}</div>
+
+<a class="btn" href="/live">Bet Now</a>
+`;
+
+box.appendChild(div);
+
+});
+
+}catch(err){
+document.getElementById("matches").innerHTML = "Failed to load games";
+}
+
+}
+
+loadMatches();
+
+</script>
 
 </body>
 </html>
