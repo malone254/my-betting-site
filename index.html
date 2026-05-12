@@ -1,14 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <title>MaloneBet</title>
 
 <style>
-body{margin:0;font-family:Arial;background:#0b1220;color:white}
-nav{padding:15px;background:#111c31;display:flex;justify-content:space-between}
-a{color:white;text-decoration:none;margin:0 10px}
-.hero{text-align:center;padding:60px}
-button{padding:12px 20px;background:#00ff9d;border:none;cursor:pointer}
+body{
+margin:0;
+font-family:Arial;
+background:#0a0f1c;
+color:white;
+}
+
+/* NAV */
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+background:#111a2e;
+border-bottom:1px solid #1f2a44;
+position:sticky;
+top:0;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+margin:0 10px;
+opacity:0.8;
+}
+
+nav a:hover{
+opacity:1;
+color:#00ff9d;
+}
+
+/* HERO */
+.hero{
+text-align:center;
+padding:80px 20px;
+}
+
+.hero h1{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.highlight{
+color:#00ff9d;
+}
+
+.hero p{
+opacity:0.8;
+font-size:18px;
+}
+
+.btn{
+margin-top:20px;
+display:inline-block;
+padding:12px 25px;
+background:#00ff9d;
+color:black;
+border:none;
+border-radius:8px;
+font-weight:bold;
+text-decoration:none;
+}
+
+.btn:hover{
+background:#00e68a;
+}
+
+/* CARDS */
+.section{
+padding:30px 20px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+margin-top:20px;
+}
+
+.card{
+background:#121a2f;
+padding:20px;
+border-radius:10px;
+border:1px solid #1f2a44;
+}
+
+.card:hover{
+border-color:#00ff9d;
+transform:scale(1.03);
+transition:0.2s;
+}
+
+.footer{
+text-align:center;
+padding:20px;
+opacity:0.6;
+margin-top:40px;
+}
 </style>
 
 </head>
@@ -16,18 +110,49 @@ button{padding:12px 20px;background:#00ff9d;border:none;cursor:pointer}
 <body>
 
 <nav>
-<div>MaloneBet</div>
+<div><b style="color:#00ff9d">MaloneBet</b></div>
 <div>
 <a href="/">Home</a>
-<a href="/live">Live</a>
+<a href="/live">Live Betting</a>
 <a href="/login">Login</a>
 </div>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
-<h1>Welcome to MaloneBet</h1>
-<p>Real live betting platform</p>
-<a href="/live"><button>Start Betting</button></a>
+<h1>Welcome to <span class="highlight">MaloneBet</span></h1>
+<p>Fast odds • Real matches • Instant betting experience</p>
+
+<a href="/live" class="btn">Start Betting</a>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+<h2>🔥 Why Choose Us</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>Live Odds</h3>
+<p>Real-time football betting updates</p>
+</div>
+
+<div class="card">
+<h3>Fast Bets</h3>
+<p>Instant bet placement system</p>
+</div>
+
+<div class="card">
+<h3>Secure</h3>
+<p>Safe betting environment</p>
+</div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+© 2026 MaloneBet • All rights reserved
 </div>
 
 </body>
