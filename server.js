@@ -1,57 +1,71 @@
-const express = require('express');
-const path = require('path');
-const axios = require('axios');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static("public"));
 
-/* HOME PAGE */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+let game = {
+  multiplier: 1.0,
+  crashPoint: 0,
+  running: false,
+  bets: {}
+};
+
+/* START GAME LOOP */
+function startGame() {
+
+game = {
+multiplier: 1.0,
+crashPoint: (Math.random() * 8 + 1.5).toFixed(2),
+running: true,
+bets: {}
+};
+
+console.log("Crash at:", game.crashPoint);
+
+/* MULTIPLIER LOOP */
+const interval = setInterval(() => {
+
+game.multiplier += 0.05;
+game.multiplier = parseFloat(game.multiplier.toFixed(2));
+
+io.emit("multiplier", game.multiplier);
+
+/* CRASH */
+if(game.multiplier >= game.crashPoint){
+clearInterval(interval);
+io.emit("crash", game.crashPoint);
+game.running = false;
+
+/* restart after 5s */
+setTimeout(startGame, 5000);
+}
+
+},100);
+
+}
+
+/* SOCKET */
+io.on("connection", (socket) => {
+
+socket.emit("multiplier", game.multiplier);
+
+socket.on("cashout", (data) => {
+
+if(!game.running) return;
+
+let payout = data.bet * game.multiplier;
+
+socket.emit("cashout_success", payout);
+
 });
 
-/* LIVE PAGE (optional later) */
-app.get('/live', (req, res) => {
-  res.sendFile(path.join(__dirname, 'live.html'));
 });
 
-/* API - UPCOMING BIG 5 MATCHES ONLY */
-app.get('/api/matches', async (req, res) => {
-  try {
+startGame();
 
-    const url = `https://api.the-odds-api.com/v4/sports/soccer/odds/?apiKey=${process.env.ODDS_API_KEY}&regions=eu&markets=h2h,totals&oddsFormat=decimal`;
-
-    const response = await axios.get(url);
-
-    const big5 = [
-      "soccer_epl",
-      "soccer_spain_la_liga",
-      "soccer_germany_bundesliga",
-      "soccer_italy_serie_a",
-      "soccer_france_ligue_one"
-    ];
-
-    const now = new Date();
-
-    const filtered = response.data.filter(match => {
-      const start = new Date(match.commence_time);
-
-      // ONLY UPCOMING + BIG 5
-      return start > now && big5.includes(match.sport_key);
-    });
-
-    res.json(filtered);
-
-  } catch (err) {
-    console.log(err.message);
-    res.status(500).json({ error: "Failed to fetch matches" });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+server.listen(3000, () => console.log("Aviator running"));
