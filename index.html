@@ -3,195 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MaloneBet - Upcoming Matches</title>
+<title>Aviator Game</title>
+
+<script src="/socket.io/socket.io.js"></script>
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:#0a0f1c;
-color:white;
-}
-
-/* TOP BAR */
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px;
-background:#111a2e;
-border-bottom:1px solid #1f2a44;
-position:sticky;
-top:0;
-}
-
-.logo{
-font-size:20px;
-font-weight:bold;
-color:#00ff9d;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: white;
+  text-align: center;
 }
 
 /* HEADER */
-.header{
-padding:20px;
-text-align:center;
+.header {
+  padding: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  background: #111a2e;
 }
 
-.header h1{
-margin:0;
-font-size:24px;
+/* MULTIPLIER */
+.multiplier {
+  font-size: 60px;
+  margin-top: 40px;
+  font-weight: bold;
+  color: #00ff88;
 }
 
-.header p{
-opacity:0.7;
-font-size:13px;
-margin-top:5px;
+/* STATUS */
+.status {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #aaa;
 }
 
-/* MATCH LIST */
-.container{
-padding:15px;
-padding-bottom:80px;
+/* PANEL */
+.panel {
+  margin-top: 30px;
+  padding: 20px;
 }
 
-.card{
-background:#121a2f;
-padding:15px;
-margin-bottom:10px;
-border-radius:12px;
-border:1px solid #1f2a44;
+/* INPUT */
+input {
+  width: 80%;
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  text-align: center;
 }
 
-.team{
-font-size:18px;
-font-weight:bold;
+/* BUTTONS */
+button {
+  width: 85%;
+  padding: 15px;
+  margin-top: 10px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-.league{
-font-size:12px;
-opacity:0.7;
-margin-top:4px;
+.bet {
+  background: #1f6fff;
+  color: white;
 }
 
-.time{
-font-size:13px;
-opacity:0.7;
-margin-top:5px;
+.cashout {
+  background: #00c853;
+  color: white;
 }
 
-.btn{
-display:block;
-margin-top:10px;
-padding:10px;
-background:#00ff9d;
-color:black;
-text-align:center;
-text-decoration:none;
-border-radius:10px;
-font-weight:bold;
+/* HISTORY */
+.history {
+  margin-top: 25px;
+  padding: 10px;
 }
 
-/* LOADING */
-.loading{
-text-align:center;
-opacity:0.7;
-}
-
-/* BOTTOM NAV */
-.bottomnav{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-display:flex;
-justify-content:space-around;
-background:#111a2e;
-padding:10px 0;
-border-top:1px solid #1f2a44;
-}
-
-.bottomnav a{
-color:white;
-text-decoration:none;
-font-size:13px;
-opacity:0.8;
+.badge {
+  display: inline-block;
+  background: #1f2a44;
+  padding: 5px 10px;
+  margin: 3px;
+  border-radius: 5px;
+  font-size: 14px;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-<div class="logo">⚽ MaloneBet</div>
-<div>Big 5</div>
+<div class="header">🚀 AVIATOR GAME</div>
+
+<div class="multiplier" id="multiplier">1.00x</div>
+<div class="status" id="status">Waiting for round...</div>
+
+<div class="panel">
+  <input type="number" id="bet" placeholder="Enter Bet Amount">
+
+  <button class="bet" onclick="placeBet()">Place Bet</button>
+  <button class="cashout" onclick="cashout()">Cashout</button>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-<h1>Upcoming Matches</h1>
-<p>EPL • La Liga • Bundesliga • Serie A • Ligue 1</p>
-</div>
-
-<!-- MATCHES -->
-<div class="container">
-<div id="matches" class="loading">Loading matches...</div>
-</div>
-
-<!-- BOTTOM NAV -->
-<div class="bottomnav">
-<a href="/">🏠 Home</a>
-<a href="/live">⚽ Live</a>
-<a href="/login">🔐 Login</a>
-<a href="/register">👤 Register</a>
+<div class="history">
+  <h3>History</h3>
+  <div id="history"></div>
 </div>
 
 <script>
+const socket = io();
 
-async function loadMatches(){
+let currentMultiplier = 1;
+let betPlaced = false;
 
-try{
-
-const res = await fetch('/api/matches');
-const data = await res.json();
-
-const box = document.getElementById("matches");
-box.innerHTML = "";
-
-if(!data || data.length === 0){
-box.innerHTML = "<p class='loading'>No upcoming matches found</p>";
-return;
-}
-
-data.forEach(m => {
-
-let league = m.sport_key.replace("soccer_","").toUpperCase();
-
-const div = document.createElement("div");
-div.className = "card";
-
-div.innerHTML = `
-<div class="team">${m.home_team} vs ${m.away_team}</div>
-<div class="league">${league}</div>
-<div class="time">${new Date(m.commence_time).toLocaleString()}</div>
-<a class="btn" href="/live">View Odds</a>
-`;
-
-box.appendChild(div);
-
+/* LIVE MULTIPLIER */
+socket.on("multiplier", (data) => {
+  currentMultiplier = data;
+  document.getElementById("multiplier").innerText = data.toFixed(2) + "x";
+  document.getElementById("status").innerText = "Flying...";
 });
 
-}catch(err){
-document.getElementById("matches").innerHTML =
-"<p class='loading'>Failed to load matches</p>";
+/* CRASH */
+socket.on("crash", (point) => {
+  document.getElementById("status").innerText = "CRASHED at " + point + "x";
+  betPlaced = false;
+});
+
+/* HISTORY */
+socket.on("history", (data) => {
+  let html = "";
+  data.forEach(h => {
+    html += `<span class="badge">${h}x</span>`;
+  });
+  document.getElementById("history").innerHTML = html;
+});
+
+/* PLACE BET */
+function placeBet() {
+  const bet = document.getElementById("bet").value;
+  if (!bet) return alert("Enter bet amount");
+
+  betPlaced = true;
+  alert("Bet placed: " + bet);
 }
 
+/* CASHOUT */
+function cashout() {
+  const bet = document.getElementById("bet").value;
+
+  if (!betPlaced) {
+    alert("Place bet first");
+    return;
+  }
+
+  socket.emit("cashout", { bet: Number(bet) });
+
+  socket.on("cashout_success", (data) => {
+    alert("Cashed out at " + data.multiplier + "x\nWon: " + data.payout);
+    betPlaced = false;
+  });
 }
-
-loadMatches();
-
 </script>
 
 </body>
-  </html>
+</html>
