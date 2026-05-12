@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Aviator Real</title>
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#050914;
+color:white;
+text-align:center;
+}
+
+.mult{
+font-size:70px;
+color:#00ff9d;
+margin-top:60px;
+}
+
+input,button{
+padding:12px;
+margin:10px;
+font-size:16px;
+}
+
+button{
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.cash{
+background:red;
+color:white;
+}
+
+.bet{
+background:#00ff9d;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>🚀 REAL AVIATOR</h2>
+
+<div class="mult" id="mult">1.00x</div>
+
+<input id="bet" placeholder="Bet amount">
+
+<br>
+
+<button class="bet" onclick="placeBet()">Place Bet</button>
+<button class="cash" onclick="cashOut()">Cash Out</button>
+
+<h3 id="status"></h3>
+
+<script>
+
+const socket = io();
+
+let currentMultiplier = 1;
+let bet = 0;
+
+socket.on("multiplier", (m) => {
+currentMultiplier = m;
+document.getElementById("mult").innerText = m + "x";
+});
+
+socket.on("crash", (c) => {
+document.getElementById("status").innerText =
+"CRASHED at " + c + "x";
+});
+
+socket.on("cashout_success", (payout) => {
+document.getElementById("status").innerText =
+"YOU WON: " + payout.toFixed(2);
+});
+
+function placeBet(){
+bet = parseFloat(document.getElementById("bet").value);
+document.getElementById("status").innerText = "Bet placed!";
+}
+
+function cashOut(){
+socket.emit("cashout", { bet });
+}
+
+</script>
+
+</body>
+</html>
