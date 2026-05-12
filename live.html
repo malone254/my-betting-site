@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Live Betting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Betting - MaloneBet</title>
 
 <style>
 body{
@@ -13,27 +14,26 @@ color:white;
 }
 
 /* TOP BAR */
-nav{
+.topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:15px 20px;
+padding:15px;
 background:#111a2e;
 border-bottom:1px solid #1f2a44;
 position:sticky;
 top:0;
 }
 
-nav a{
-color:white;
-text-decoration:none;
-margin:0 10px;
-opacity:0.8;
+.logo{
+color:#00ff9d;
+font-weight:bold;
+font-size:20px;
 }
 
-nav a:hover{
-opacity:1;
-color:#00ff9d;
+.live-dot{
+color:red;
+font-weight:bold;
 }
 
 /* MAIN LAYOUT */
@@ -44,30 +44,44 @@ display:flex;
 /* MATCH LIST */
 .matches{
 flex:3;
-padding:20px;
+padding:15px;
 }
 
 .card{
 background:#121a2f;
 padding:15px;
-margin-bottom:10px;
-border-radius:10px;
+margin-bottom:12px;
+border-radius:12px;
 border:1px solid #1f2a44;
 }
 
-.teams{
-font-size:16px;
+.team{
+font-size:18px;
+font-weight:bold;
+}
+
+.time{
+font-size:13px;
+opacity:0.7;
 margin-bottom:10px;
 }
 
+/* MARKET SECTION */
+.market-title{
+margin-top:10px;
+font-size:14px;
+opacity:0.8;
+}
+
 .odds button{
-margin-right:8px;
-padding:8px 12px;
+margin:5px 5px 0 0;
+padding:10px 12px;
 border:none;
-border-radius:6px;
+border-radius:8px;
 cursor:pointer;
 background:#1f2a44;
 color:white;
+font-size:14px;
 }
 
 .odds button:hover{
@@ -95,7 +109,7 @@ color:#00ff9d;
 background:#121a2f;
 padding:10px;
 margin-bottom:10px;
-border-radius:8px;
+border-radius:10px;
 font-size:14px;
 border:1px solid #1f2a44;
 }
@@ -103,9 +117,9 @@ border:1px solid #1f2a44;
 input{
 width:100%;
 padding:10px;
-margin-top:10px;
 border-radius:8px;
 border:none;
+margin-top:10px;
 }
 
 .place-btn{
@@ -114,13 +128,24 @@ margin-top:10px;
 padding:12px;
 background:#00ff9d;
 border:none;
-border-radius:8px;
+border-radius:10px;
 font-weight:bold;
 cursor:pointer;
 }
 
-.place-btn:hover{
-background:#00e68a;
+/* MOBILE */
+@media(max-width:900px){
+.wrapper{
+flex-direction:column;
+}
+
+.slip{
+width:100%;
+height:auto;
+position:relative;
+border-left:none;
+border-top:1px solid #1f2a44;
+}
 }
 </style>
 
@@ -128,34 +153,36 @@ background:#00e68a;
 
 <body>
 
-<nav>
-<div><b style="color:#00ff9d">MaloneBet</b></div>
-<div>
-<a href="/">Home</a>
-<a href="/live">Live</a>
-<a href="/login">Login</a>
+<!-- TOP BAR -->
+<div class="topbar">
+<div class="logo">⚽ Live Bets</div>
+<div class="live-dot">🔴 LIVE</div>
 </div>
-</nav>
 
 <div class="wrapper">
 
 <!-- MATCHES -->
 <div class="matches">
-<h2>⚽ Live Matches</h2>
-<div id="matches"></div>
+
+<h2>Live Matches</h2>
+
+<div id="matches">Loading live games...</div>
+
 </div>
 
 <!-- BET SLIP -->
 <div class="slip">
+
 <h2>Bet Slip</h2>
 
 <div id="slip"></div>
 
 <input id="stake" placeholder="Enter stake">
 
-<p id="win">Potential Win: 0</p>
+<p id="total">Potential Win: 0</p>
 
 <button class="place-btn" onclick="placeBet()">Place Bet</button>
+
 </div>
 
 </div>
@@ -164,25 +191,41 @@ background:#00e68a;
 
 let bets = [];
 
+/* LOAD MATCHES */
 async function loadMatches(){
 
 const res = await fetch('/api/matches');
 const data = await res.json();
 
-const box = document.getElementById('matches');
+const box = document.getElementById("matches");
+box.innerHTML = "";
+
+if(!data || data.length === 0){
+box.innerHTML = "<p>No live matches at the moment 🔕</p>";
+return;
+}
 
 data.forEach(m => {
 
-const div = document.createElement('div');
+const div = document.createElement("div");
 div.className = "card";
 
+/* BASIC 1X2 + O/U (from API if available) */
 div.innerHTML = `
-<div class="teams">${m.home_team} vs ${m.away_team}</div>
+<div class="team">${m.home_team} vs ${m.away_team}</div>
+<div class="time">${new Date(m.commence_time).toLocaleString()}</div>
 
+<div class="market-title">1X2</div>
 <div class="odds">
-<button onclick="addBet('${m.home_team} vs ${m.away_team}',1.8)">1.8</button>
-<button onclick="addBet('${m.home_team} vs ${m.away_team}',2.2)">2.2</button>
-<button onclick="addBet('${m.home_team} vs ${m.away_team}',3.0)">3.0</button>
+<button onclick="addBet('${m.home_team} Win',1.8)">Home</button>
+<button onclick="addBet('Draw',2.0)">Draw</button>
+<button onclick="addBet('${m.away_team} Win',2.5)">Away</button>
+</div>
+
+<div class="market-title">Over/Under 2.5</div>
+<div class="odds">
+<button onclick="addBet('Over 2.5',1.9)">Over</button>
+<button onclick="addBet('Under 2.5',1.8)">Under</button>
 </div>
 `;
 
@@ -192,56 +235,64 @@ box.appendChild(div);
 
 }
 
-function addBet(match,odds){
-bets.push({match,odds});
+/* ADD BET */
+function addBet(name,odd){
+
+bets.push({name,odd});
 renderSlip();
+
 }
 
+/* RENDER SLIP */
 function renderSlip(){
 
 const slip = document.getElementById("slip");
 slip.innerHTML = "";
 
-let total = 1;
+let totalOdds = 1;
 
 bets.forEach(b=>{
-total *= b.odds;
+totalOdds *= b.odd;
 
 slip.innerHTML += `
 <div class="bet-item">
-${b.match}<br>
-Odds: ${b.odds}
+${b.name}<br>
+Odds: ${b.odd}
 </div>
 `;
+
 });
 
 let stake = document.getElementById("stake").value || 0;
-document.getElementById("win").innerText =
-"Potential Win: " + (stake * total).toFixed(2);
+document.getElementById("total").innerText =
+"Potential Win: " + (stake * totalOdds).toFixed(2);
+
+}
+
+/* PLACE BET */
+async function placeBet(){
+
+await fetch('/api/bet',{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+bets,
+stake:document.getElementById("stake").value
+})
+});
+
+alert("Bet placed!");
+
+bets = [];
+renderSlip();
 
 }
 
 document.getElementById("stake").addEventListener("input",renderSlip);
-
-async function placeBet(){
-
-await fetch('/api/bet',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({
-bets,
-stake:document.getElementById('stake').value
-})
-});
-
-alert("Bet placed successfully!");
-bets = [];
-renderSlip();
-}
 
 loadMatches();
 
 </script>
 
 </body>
-</html>
+  </html>
