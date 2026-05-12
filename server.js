@@ -3,22 +3,20 @@ const path = require('path');
 
 const app = express();
 
-app.use(express.static('public'));
-
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/live', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'live.html'));
+  res.sendFile(path.join(__dirname, 'live.html'));
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+  res.sendFile(path.join(__dirname, 'register.html'));
 });
 
 const PORT = process.env.PORT || 3000;
